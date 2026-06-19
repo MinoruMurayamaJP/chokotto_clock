@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>壁掛け時計モード付き デジタル時計</title>
+<meta name="theme-color" content="#00AEEF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ちょこっと時計">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+  :root{--blue:#00aeef;--line:#d8e2ef;--soft:#f5fbff;--text:#1f2937;--muted:#6b7280;}
+  *{box-sizing:border-box}
+  html{width:100%;min-height:100%;margin:0;padding:0;}
+  body{margin:0;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Meiryo,sans-serif;color:var(--text);background:#fff;font-size:14px;}
+  @supports (padding: max(0px)){
+    body{padding-left:max(0px, env(safe-area-inset-left));padding-right:max(0px, env(safe-area-inset-right));padding-top:0;padding-bottom:0;}
+  }
+  body.fullscreen-active{overflow:hidden;background:#000;}
+  body.fullscreen-active.white-mode{background:#fff;}
+
+  button,input,select{font:inherit}
+  .app{display:grid;grid-template-columns:672px 1fr;gap:12px;padding:10px;min-height:100vh;}
+  .panel{border:1px solid var(--line);border-radius:6px;background:#fff;box-shadow:0 1px 3px #0001;overflow:auto;max-height:calc(100vh - 20px)}
+  .head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);font-size:22px;font-weight:800;}
+  .head small{font-size:12px;color:var(--muted);font-weight:500;margin-left:6px}
+  .section{border-bottom:1px solid #e5e7eb;padding:12px 14px;display:grid;grid-template-columns:122px 1fr 220px;gap:8px 12px;align-items:center;}
+  .section h2{grid-column:1/-1;margin:0 0 4px;font-size:16px;border-bottom:1px solid #e5e7eb;padding-bottom:7px;}
+  label{white-space:nowrap}.radios label{display:block;margin:5px 0}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.num{width:68px;padding:5px 6px;border:1px solid #d1d5db;border-radius:4px;text-align:right}.hex{width:96px;padding:5px 6px;border:1px solid #d1d5db;border-radius:4px}.fontsel{width:170px;padding:5px;border:1px solid #d1d5db;border-radius:4px}.muted{color:var(--muted);font-size:12px}.palette{display:grid;grid-template-columns:repeat(4,36px);gap:12px 18px;justify-content:start;align-content:start;margin-left:-108px}.sw{width:36px;height:36px;border-radius:4px;border:1px solid #cbd5e1;cursor:pointer;position:relative}.sw.sel{outline:3px solid #168cff;outline-offset:2px}.sw.sel:after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;text-shadow:0 1px 2px #0008}.actions{padding:10px 14px;display:flex;gap:10px;align-items:center}.btn{border:1px solid #cbd5e1;border-radius:5px;background:#fff;padding:7px 18px;cursor:pointer}.btn.primary{background:#168cff;color:#fff;border-color:#168cff;font-weight:700}.btn.green{background:#16a34a;color:#fff;border-color:#16a34a;font-weight:700}.previewWrap{display:grid;grid-template-rows:auto auto auto auto;gap:8px;min-height:0}.bar{border:1px solid #bcd7f7;background:#f1f8ff;color:#0874d1;font-weight:800;border-radius:5px 5px 0 0;padding:10px 14px;font-size:18px}.bar small{color:#555;font-size:13px;font-weight:500}.stage{border:2px solid #111;position:relative;background:white;aspect-ratio:4/3;width:10.7cm;height:8cm;max-width:100%;overflow:hidden;cursor:pointer}.stage.saved{background:#000;aspect-ratio:4/3;width:10.7cm;height:8cm;max-width:100%}.greenbar{border:1px solid #b7e4c7;background:#ecfff0;color:#15803d;font-weight:800;padding:10px 14px}.item{position:absolute;line-height:1;white-space:nowrap;font-weight:900}.analogCanvas{position:absolute;inset:0;width:100%;height:100%;display:none}.full{margin-left:auto}.linkMark{font-size:18px;color:#333}.hide{display:none}.fs{position:fixed!important;left:50%!important;top:50%!important;width:min(100vw, calc(100vh * 4 / 3))!important;height:min(100vh, calc(100vw * 3 / 4))!important;max-width:none!important;z-index:9999!important;border:none!important;transform:translate(-50%,-50%)!important;box-shadow:0 0 0 9999px #000!important}.fs{user-select:none;-webkit-user-select:none;touch-action:none;cursor:default}.fs.whiteFull{background:#fff!important;box-shadow:0 0 0 9999px #fff!important}.fs.blackFull{background:#000!important;box-shadow:0 0 0 9999px #000!important}
+  @media (max-width:1000px){.app{grid-template-columns:1fr}.panel{max-height:none}.section{grid-template-columns:110px 1fr}.palette{grid-column:2}.previewWrap{min-height:760px}.stage{width:min(10.7cm,100%);height:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <div class="head">🕘 壁掛け時計モード付き デジタル時計 設定 <small>Ver.260619-0115 PWA　※変更するとリアル表示へ即時反映</small></div>
+    <div id="settings"></div>
+    <div class="actions">
+      <button class="btn primary" id="saveBtn">保存（フル表示で保存）</button>
+      <button class="btn green" id="openBtn">フル表示を開く</button>
+      <button class="btn" id="resetBtn">初期値に戻す</button>
+    </div>
+    <div class="actions muted">※ フル表示は時計だけを表示します。左右スワイプで表示切替、設定に戻る時は時計エリアを2秒長押しします。</div>
+  </div>
+  <div class="previewWrap">
+    <div class="bar">リアルタイム表示 <small>（設定を変更すると即時反映されます）</small></div>
+    <div class="stage" id="liveStage"><div id="liveTime" class="item"></div><div id="liveDate" class="item"></div><div id="liveWeek" class="item"></div></div>
+    <div class="greenbar">フル表示プレビュー <small>（リアル表示・設定変更を即時反映）</small></div>
+    <div class="stage saved" id="savedStage"><canvas id="analogCanvas" class="analogCanvas"></canvas><div id="savedTime" class="item"></div><div id="savedDate" class="item"></div><div id="savedWeek" class="item"></div></div>
+  </div>
+</div>
+<script>
+(function(){
+  var colors=['#00AEEF','#5FD3DF','#B065E8','#E85CCB','#F26D91','#FF4C5E','#FF633D','#FFB45C','#55D98C','#55C878','#58B947','#A6DB45','#5EA4F5','#5D6DF2','#7D55E8','#7A8A93'];
+  var fonts=['Comic Sans MS','Arial Black','Arial','Verdana','Georgia','Times New Roman','Meiryo','Yu Gothic','Courier New'];
+  var def={
+    time:{name:'時刻',fmt:'hm',ampm:'24',analogTime:'on',color:'#00AEEF',w:800,h:117,pos:'tl',top:57,left:36,topc:57,font:'Comic Sans MS'},
+    date:{name:'日付',fmt:'ymd',color:'#00AEEF',w:770,h:33,pos:'tl',top:222,left:55,topc:162,font:'Comic Sans MS'},
+    week:{name:'曜日',fmt:'enShort',paren:'on',color:'#00AEEF',w:222,h:33,pos:'tl',top:222,left:257,topc:320,font:'Comic Sans MS'}
+  };
+  var STORE_DRAFT='chokottoClockDraft_v260618_2335', STORE_SAVED='chokottoClockSaved_v260618_2335';
+  var state=load(STORE_DRAFT, def), saved=load(STORE_SAVED, state);
+  if(!state.week.paren)state.week.paren='on'; if(!saved.week.paren)saved.week.paren='on'; if(!state.time.analogTime)state.time.analogTime='on'; if(!saved.time.analogTime)saved.time.analogTime='on';
+  function clone(o){return JSON.parse(JSON.stringify(o))}
+  function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):clone(d)}catch(e){return clone(d)}}
+  function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  function pad(n){return ('0'+n).slice(-2)}
+  function fmtTime(d,c){var h=d.getHours(),m=pad(d.getMinutes()),s=pad(d.getSeconds()),ap=''; if(c.ampm==='12'){ap=h<12?'AM':'PM'; h=h%12||12; return ap+' '+pad(h)+':'+m+(c.fmt==='hms'?':'+s:'')} return pad(h)+':'+m+(c.fmt==='hms'?':'+s:'')}
+  function fmtDate(d,c){var y=d.getFullYear(),yy=String(y).slice(-2),mo=pad(d.getMonth()+1),da=pad(d.getDate()); if(c.fmt==='yy')return yy+'/'+mo+'/'+da; if(c.fmt==='md')return mo+'/'+da; return y+'/'+mo+'/'+da}
+  function fmtWeek(d,c){var enS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],enF=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],jaS=['日','月','火','水','木','金','土'],jaF=['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];var i=d.getDay(),v=''; if(c.fmt==='none')return ''; if(c.fmt==='enFull')v=enF[i]; else if(c.fmt==='jaShort')v=jaS[i]; else if(c.fmt==='jaFull')v=jaF[i]; else v=enS[i]; return c.paren==='on'?'('+v+')':v}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+  function radio(name,val,txt,cur){return '<label><input type="radio" name="'+name+'" value="'+val+'" '+(cur===val?'checked':'')+'> '+txt+'</label>'}
+  function sec(key,idx){var c=state[key], html='<div class="section"><h2>'+idx+'. '+c.name+'表示の設定</h2>'; 
+    if(key==='time') html+='<div>時刻表示形式</div><div class="radios">'+radio(key+'.fmt','hm','HH:MM',c.fmt)+radio(key+'.fmt','hms','HH:MM:SS',c.fmt)+'</div><div></div><div>時間制</div><div class="radios">'+radio(key+'.ampm','24','24時間',c.ampm)+radio(key+'.ampm','12','12時間（AM/PM）',c.ampm)+'</div><div></div><div>アナログ時計表記</div><div class="radios">'+radio(key+'.analogTime','on','表示',c.analogTime||'on')+radio(key+'.analogTime','off','非表示',c.analogTime||'on')+'</div>';
+    if(key==='date') html+='<div>日付表示形式</div><div class="radios">'+radio(key+'.fmt','ymd','yyyy/mm/dd',c.fmt)+radio(key+'.fmt','yy','yy/mm/dd',c.fmt)+radio(key+'.fmt','md','mm/dd',c.fmt)+'</div>';
+    if(key==='week') html+='<div>曜日表示形式</div><div class="radios">'+radio(key+'.fmt','enShort','英語短縮　Mon',c.fmt)+radio(key+'.fmt','enFull','英語フル　Monday',c.fmt)+radio(key+'.fmt','jaShort','日本語短縮　月',c.fmt)+radio(key+'.fmt','jaFull','日本語フル　月曜日',c.fmt)+radio(key+'.fmt','none','非表示',c.fmt)+'</div><div></div><div>括弧表示</div><div class="radios">'+radio(key+'.paren','on','あり　(Mon)',c.paren||'on')+radio(key+'.paren','off','なし　Mon',c.paren||'on')+'</div>';
+    html+='<div></div><div>'+c.name+'色</div><div class="row"><span class="sw" style="background:'+c.color+'"></span><input class="hex" data-k="'+key+'" data-p="color" value="'+esc(c.color)+'"></div><div class="palette">';
+    colors.forEach(function(col){html+='<button class="sw '+(col.toUpperCase()===c.color.toUpperCase()?'sel':'')+'" data-color="'+col+'" data-k="'+key+'" style="background:'+col+'" title="'+col+'"></button>'});
+    html+='</div><div>'+c.name+'サイズ</div><div class="row">幅 <input class="num" type="number" data-k="'+key+'" data-p="w" value="'+c.w+'"> px　高さ <input class="num" type="number" data-k="'+key+'" data-p="h" value="'+c.h+'"> px <span class="linkMark">🔗</span></div><div></div>';
+    html+='<div>'+c.name+'位置</div><div class="radios">'+radio(key+'.pos','tl','Top、Left を指定',c.pos)+'<div class="row">Top <input class="num" type="number" data-k="'+key+'" data-p="top" value="'+c.top+'"> px　Left <input class="num" type="number" data-k="'+key+'" data-p="left" value="'+c.left+'"> px</div>'+radio(key+'.pos','center','Top を指定（センタリング）',c.pos)+'<div class="row">Top <input class="num" type="number" data-k="'+key+'" data-p="topc" value="'+c.topc+'"> px</div></div><div></div>';
+    html+='<div>フォント</div><div><select class="fontsel" data-k="'+key+'" data-p="font">'; fonts.forEach(function(f){html+='<option '+(c.font===f?'selected':'')+'>'+f+'</option>'}); html+='</select></div><div></div></div>'; return html;
+  }
+  function build(){document.getElementById('settings').innerHTML=sec('time',1)+sec('date',2)+sec('week',3); bind(); renderAll()}
+  function bind(){document.querySelectorAll('input,select').forEach(function(el){el.oninput=el.onchange=function(){var n=el.name;if(n){var a=n.split('.');state[a[0]][a[1]]=el.value}else{var k=el.dataset.k,p=el.dataset.p;state[k][p]=(el.type==='number')?Number(el.value):el.value} save(STORE_DRAFT,state); renderAll(); if(el.dataset.p==='color') build();}});document.querySelectorAll('[data-color]').forEach(function(b){b.onclick=function(){state[b.dataset.k].color=b.dataset.color;save(STORE_DRAFT,state);build();}})}
+  function fullScale(el){var st=el.parentNode;if(!st.classList.contains('fs'))return 1;var base=document.getElementById('liveStage').getBoundingClientRect().width||404;var now=st.getBoundingClientRect().width||base;return now/base}
+  function place(el,c,stage){var sc=fullScale(el);el.style.color=c.color;el.style.fontFamily=c.font;el.style.fontSize=Math.max(12,(Number(c.h)||50)*sc)+'px';el.style.width=((Number(c.w)||100)*sc)+'px';el.style.height=((Number(c.h)||50)*sc)+'px';el.style.top=(((c.pos==='center'?c.topc:c.top)||0)*sc)+'px'; if(c.pos==='center'){el.style.left='50%';el.style.transform='translateX(-50%)';el.style.textAlign='center'}else{el.style.left=((c.left||0)*sc)+'px';el.style.transform='none';el.style.textAlign='left'}}
+  function render(prefix,st){var d=new Date();var t=document.getElementById(prefix+'Time'),da=document.getElementById(prefix+'Date'),w=document.getElementById(prefix+'Week');t.textContent=fmtTime(d,st.time);da.textContent=fmtDate(d,st.date);w.textContent=fmtWeek(d,st.week);place(t,st.time);place(da,st.date);place(w,st.week);w.style.display=st.week.fmt==='none'?'none':'block'}
+  function renderAll(){render('live',state);render('saved',state)}
+  document.getElementById('saveBtn').onclick=function(){saved=clone(state);save(STORE_SAVED,saved);renderAll();openFull()};
+  document.getElementById('openBtn').onclick=function(){saved=clone(state);save(STORE_SAVED,saved);openFull()};
+  document.getElementById('resetBtn').onclick=function(){if(confirm('設定を初期値に戻しますか？')){state=clone(def);saved=clone(def);save(STORE_DRAFT,state);save(STORE_SAVED,saved);build();}};
+  var fullMode='blackDigital';
+  var modes=['whiteDigital','blackDigital','whiteAnalog','blackAnalog'];
+  function modeBg(mode){return mode.indexOf('white')===0?'white':'black'}
+  function isAnalog(mode){return mode.indexOf('Analog')>0}
+  function setDigitalVisible(on){['savedTime','savedDate','savedWeek'].forEach(function(id){document.getElementById(id).style.display=on?'block':'none'});document.getElementById('analogCanvas').style.display=on?'none':'block'}
+  function openFullWithStyle(st,bg){saved=clone(st);save(STORE_SAVED,saved);openFull(bg==='white'?'whiteDigital':'blackDigital')}
+  function openFull(mode){fullMode=mode||fullMode||'blackDigital';var s=document.getElementById('savedStage');s.classList.remove('whiteFull','blackFull');s.classList.add('fs', modeBg(fullMode)==='white'?'whiteFull':'blackFull');if(isAnalog(fullMode)){setDigitalVisible(false);drawAnalog()}else{setDigitalVisible(true);render('saved',saved)}}
+  function closeFull(){var s=document.getElementById('savedStage');s.classList.remove('fs','whiteFull','blackFull');setDigitalVisible(true);clearHold();renderAll()}
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeFull()});
+  function nextFullMode(){var i=modes.indexOf(fullMode);if(i<0)i=0;openFull(modes[(i+1)%modes.length])}
+  function drawAnalog(){var canvas=document.getElementById('analogCanvas'),st=document.getElementById('savedStage'),rect=st.getBoundingClientRect(),d=new Date(),white=modeBg(fullMode)==='white';var dpr=window.devicePixelRatio||1;canvas.width=Math.max(1,Math.floor(rect.width*dpr));canvas.height=Math.max(1,Math.floor(rect.height*dpr));canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';var ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);var W=rect.width,H=rect.height;ctx.fillStyle=white?'#fff':'#000';ctx.fillRect(0,0,W,H);var col=white?'#000':'#fff';var cx=W/2, cy=H/2, r=Math.min(W,H)*0.43;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(3,r*0.01);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();for(var i=0;i<60;i++){var a=i*Math.PI/30-Math.PI/2;var major=i%5===0;var len=major?r*0.095:r*0.045;var w=major?Math.max(3,r*0.012):Math.max(2,r*0.006);ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*(r-len),cy+Math.sin(a)*(r-len));ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke()}ctx.font='900 '+Math.floor(r*0.16)+'px Arial Black, Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';for(var n=1;n<=12;n++){var a=n*Math.PI/6-Math.PI/2;ctx.fillText(String(n),cx+Math.cos(a)*r*0.78,cy+Math.sin(a)*r*0.78)}var hr=d.getHours()%12+d.getMinutes()/60, mn=d.getMinutes()+d.getSeconds()/60, sc=d.getSeconds();function hand(angle,len,width,color){ctx.strokeStyle=color||col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle-Math.PI/2)*len,cy+Math.sin(angle-Math.PI/2)*len);ctx.stroke()}hand(hr*Math.PI/6,r*0.52,Math.max(10,r*0.055),col);hand(mn*Math.PI/30,r*0.70,Math.max(8,r*0.045),col);hand(sc*Math.PI/30,r*0.78,Math.max(2,r*0.006),col);ctx.fillStyle=white?'#ddd':'#222';ctx.beginPath();ctx.arc(cx,cy,r*0.035,0,Math.PI*2);ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=Math.max(2,r*0.008);ctx.stroke();// アナログ内のデジタル時刻・日付・曜日は最後に描画して、針より常に最前面にする
+var timeText=fmtTime(d,saved.time), dateText=fmtDate(d,saved.date), weekText=fmtWeek(d,saved.week);
+ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+function frontText(txt,y,size,font,color){
+  if(!txt)return;
+  ctx.font='900 '+Math.floor(size)+'px '+(font||'Arial')+', Arial, sans-serif';
+  // 針と重なっても読めるように、背景色で縁取りしてから本体を描く
+  ctx.lineWidth=Math.max(4,r*0.025);
+  ctx.strokeStyle=white?'#fff':'#000';
+  ctx.strokeText(txt,cx,y);
+  ctx.fillStyle=color||col;
+  ctx.fillText(txt,cx,y);
+}
+if((saved.time.analogTime||'on')==='on') frontText(timeText,cy-r*0.23,r*0.12,saved.time.font,col);
+frontText(dateText,cy+r*0.28,r*0.085,saved.date.font,col);
+frontText(weekText,cy+r*0.39,r*0.07,saved.week.font,col);
+}
+  var holdTimer=null, suppressClick=false, touchSX=0, touchSY=0, touchST=0, mouseSX=0, mouseSY=0, mouseDown=false;
+  function clearHold(){if(holdTimer){clearTimeout(holdTimer);holdTimer=null}}
+  function startHold(e){var s=document.getElementById('savedStage');if(!s.classList.contains('fs'))return;if(e&&e.preventDefault)e.preventDefault();clearHold();holdTimer=setTimeout(function(){suppressClick=true;closeFull();setTimeout(function(){suppressClick=false},350)},2000)}
+  function prevFullMode(){var i=modes.indexOf(fullMode);if(i<0)i=0;openFull(modes[(i-1+modes.length)%modes.length])}
+  function judgeSwipe(dx,dy,dt){if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.7 && dt<1200){if(dx<0)nextFullMode();else prevFullMode();return true}return false}
+  document.getElementById('liveStage').addEventListener('click',function(){openFullWithStyle(state,'white')});
+  var fullStage=document.getElementById('savedStage');
+  fullStage.addEventListener('click',function(){if(suppressClick)return;if(!fullStage.classList.contains('fs'))openFullWithStyle(state,'black')});
+  fullStage.addEventListener('dblclick',function(e){if(fullStage.classList.contains('fs')){e.preventDefault();nextFullMode()}});
+  fullStage.addEventListener('touchstart',function(e){if(fullStage.classList.contains('fs') && e.touches && e.touches.length){touchSX=e.touches[0].clientX;touchSY=e.touches[0].clientY;touchST=Date.now()}startHold(e)}, {passive:false});
+  fullStage.addEventListener('touchmove',function(e){
+    if(!fullStage.classList.contains('fs') || !e.touches || !e.touches.length)return;
+    var dx=e.touches[0].clientX-touchSX, dy=e.touches[0].clientY-touchSY;
+    // iPadは長押し中でも微小なtouchmoveが出るため、少し動いた程度では長押しを解除しない
+    if(Math.abs(dx)>18 || Math.abs(dy)>18)clearHold();
+  }, {passive:false});
+  fullStage.addEventListener('touchend',function(e){clearHold();if(!fullStage.classList.contains('fs'))return;if(e.changedTouches && e.changedTouches.length){var dx=e.changedTouches[0].clientX-touchSX, dy=e.changedTouches[0].clientY-touchSY;if(judgeSwipe(dx,dy,Date.now()-touchST))e.preventDefault()}}, {passive:false});
+  fullStage.addEventListener('mousedown',function(e){mouseDown=true;mouseSX=e.clientX;mouseSY=e.clientY;startHold(e)});
+  fullStage.addEventListener('mouseup',function(e){clearHold();if(fullStage.classList.contains('fs') && mouseDown){judgeSwipe(e.clientX-mouseSX,e.clientY-mouseSY,600)}mouseDown=false});
+  fullStage.addEventListener('mouseleave',function(){clearHold();mouseDown=false});
+  fullStage.addEventListener('touchcancel',clearHold);
+  fullStage.addEventListener('contextmenu',function(e){if(fullStage.classList.contains('fs'))e.preventDefault()});
+  build(); setInterval(function(){var s=document.getElementById('savedStage'); if(s.classList.contains('fs')){if(isAnalog(fullMode))drawAnalog();else render('saved',saved);render('live',state)}else{renderAll()}},1000);
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./service-worker.js').catch(function(e){console.log('SW registration failed', e);});
+  });
+}
+</script>
+</body>
+</html>
