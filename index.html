@@ -31,13 +31,13 @@ body.layout19 .colorCurrent{margin-right:0;margin-bottom:6px}.colorRow{display:f
 
 /* iPhone rotation artifact / stray marker guard */
 
-// ul,ol,li{list-style:none!important;margin:0;padding:0}
-// li::marker{content:""!important}
-// .head{isolation:isolate;overflow:hidden}
-// .head>*{position:relative;z-index:2}
-// .head::before{content:"";position:absolute;inset:0;background:#fff;z-index:1;pointer-events:none}
-// .head::after,.title::before,.title::after,.app::before,.app::after,.panel::before,.panel::after{content:none!important;display:none!important}
-// body:not(.layout19) .phoneSticky{display:none!important}
+ul,ol,li{list-style:none!important;margin:0;padding:0}
+li::marker{content:""!important}
+.head{isolation:isolate;overflow:hidden}
+.head>*{position:relative;z-index:2}
+.head::before{content:"";position:absolute;inset:0;background:#fff;z-index:1;pointer-events:none}
+.head::after,.title::before,.title::after,.app::before,.app::after,.panel::before,.panel::after{content:none!important;display:none!important}
+body:not(.layout19) .phoneSticky{display:none!important}
 
 </style>
 </head>
@@ -150,12 +150,12 @@ function forceIOSPhoneRepaint(){
   },80);
 }
 window.addEventListener('orientationchange',function(){
-  setTimeout(forceIOSPhoneRepaint,120);
-  setTimeout(forceIOSPhoneRepaint,450);
-  setTimeout(forceIOSPhoneRepaint,900);
+//  setTimeout(forceIOSPhoneRepaint,120);
+//  setTimeout(forceIOSPhoneRepaint,450);
+//  setTimeout(forceIOSPhoneRepaint,900);
 });
 window.addEventListener('resize',function(){
-  setTimeout(forceIOSPhoneRepaint,120);
+//  setTimeout(forceIOSPhoneRepaint,120);
 });
 document.getElementById('resetBtn').onclick=function(){if(confirm('現在の比率の設定を初期値に戻しますか？')){state.profiles[state.ratio]=defaultForRatio(state.ratio);setActiveRefs();save();buildSettings();applyLayout();renderAll()}};document.getElementById('ratioSel').onchange=function(){save();state.ratio=this.value;setActiveRefs();save();buildSettings();applyLayout();renderAll()};
 buildSettings();applyLayout();renderAll();setInterval(function(){var s=document.getElementById('savedStage');if(s.classList.contains('fs')){if(isAnalog(fullMode))drawAnalog('saved',s,modeBg(fullMode)==='white');else renderDigital('saved',s,modeBg(fullMode)==='white');renderDigital('live',document.getElementById('liveStage'),true);renderDigital('phone',document.getElementById('phoneStage'),true)}else{renderAll()}},1000);
