@@ -148,12 +148,12 @@ function forceIOSPhoneRepaint(){
   },80);
 }
 window.addEventListener('orientationchange',function(){
-  setTimeout(forceIOSPhoneRepaint,120);
+//  setTimeout(forceIOSPhoneRepaint,120);
 //  setTimeout(forceIOSPhoneRepaint,450);
 //  setTimeout(forceIOSPhoneRepaint,900);
 });
 window.addEventListener('resize',function(){
-  setTimeout(forceIOSPhoneRepaint,120);
+//  setTimeout(forceIOSPhoneRepaint,120);
 });
 document.getElementById('resetBtn').onclick=function(){if(confirm('現在の比率の設定を初期値に戻しますか？')){state.profiles[state.ratio]=defaultForRatio(state.ratio);setActiveRefs();save();buildSettings();applyLayout();renderAll()}};document.getElementById('ratioSel').onchange=function(){save();state.ratio=this.value;setActiveRefs();save();buildSettings();applyLayout();renderAll()};
 buildSettings();applyLayout();renderAll();setInterval(function(){var s=document.getElementById('savedStage');if(s.classList.contains('fs')){if(isAnalog(fullMode))drawAnalog('saved',s,modeBg(fullMode)==='white');else renderDigital('saved',s,modeBg(fullMode)==='white');renderDigital('live',document.getElementById('liveStage'),true);renderDigital('phone',document.getElementById('phoneStage'),true)}else{renderAll()}},1000);
