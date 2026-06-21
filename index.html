@@ -30,7 +30,6 @@ body.repaintHold .app{opacity:.9999}
 body.layout19 .colorCurrent{margin-right:0;margin-bottom:6px}.colorRow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 
 /* iPhone rotation artifact / stray marker guard */
-
 ul,ol,li{list-style:none!important;margin:0;padding:0}
 li::marker{content:""!important}
 .head{isolation:isolate;overflow:hidden}
@@ -38,7 +37,6 @@ li::marker{content:""!important}
 .head::before{content:"";position:absolute;inset:0;background:#fff;z-index:1;pointer-events:none}
 .head::after,.title::before,.title::after,.app::before,.app::after,.panel::before,.panel::after{content:none!important;display:none!important}
 body:not(.layout19) .phoneSticky{display:none!important}
-
 </style>
 </head>
 <body>
@@ -48,7 +46,7 @@ body:not(.layout19) .phoneSticky{display:none!important}
       <img src="icon-192.png" alt="">
       <div class="title">ちょこっと時計</div>
       <div class="ratioCtl"><span>比率切替</span><select id="ratioSel"><option value="4:3">4:3</option><option value="19:9">19:9</option></select></div>
-      <div class="ver">Ver.260620-0045 TT2/div>
+      <div class="ver">Ver.260620-0045 TV0/div>
     </div>
     <div class="phoneSticky"><div class="stage ratio19" id="phoneStage"><canvas id="phoneAnalog" class="analogCanvas"></canvas><div id="phoneTime" class="item"></div><div id="phoneDate" class="item"></div></div></div>
     <div id="settings"></div>
@@ -150,9 +148,9 @@ function forceIOSPhoneRepaint(){
   },80);
 }
 window.addEventListener('orientationchange',function(){
- setTimeout(forceIOSPhoneRepaint,120);
-//  setTimeout(forceIOSPhoneRepaint,450);
-//  setTimeout(forceIOSPhoneRepaint,900);
+  setTimeout(forceIOSPhoneRepaint,120);
+  setTimeout(forceIOSPhoneRepaint,450);
+  setTimeout(forceIOSPhoneRepaint,900);
 });
 window.addEventListener('resize',function(){
   setTimeout(forceIOSPhoneRepaint,120);
